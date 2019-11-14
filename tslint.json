@@ -1,0 +1,26 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended"
+    ],
+    "rules": {
+        "whitespace": false,
+        "no-console": false,
+        "no-debugger": false,
+        "no-conditional-assignment": false,
+        "no-namespace": false,
+        "no-shadowed-variable": false,
+        "max-line-length": false,
+        "no-string-literal": false,
+        "curly": [true, "ignore-same-line"],
+        "variable-name": {
+            "options": [
+                "ban-keywords",
+                "allow-leading-underscore"
+            ]
+        },
+        "ordered-imports": false,
+        "object-literal-sort-keys": false
+    },
+    "rulesDirectory": []
+}

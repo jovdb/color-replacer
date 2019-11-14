@@ -1,0 +1,46 @@
+:root {
+  --colors-spacing: 8px;
+  --colors-btn-size: 32px;
+}
+
+.colors {
+  padding: 0;
+  margin: 0;
+}
+
+.colors .color-group {
+  display: inline-block;
+  padding: 5px 6px 6px 5px;
+  margin-right: 15px;
+  margin-bottom: 5px;
+}
+
+.colors .color-group.selected {
+  padding: 3px 4px 4px 3px;
+  border: 2px solid rgba(0,0,0,0.5);
+  border-radius: 3px;
+}
+
+.colors .color {
+
+  width: calc(var(--colors-btn-size) - 4px);
+  height: calc(var(--colors-btn-size) - 4px);
+  line-height: calc(var(--colors-btn-size) - 4px);
+  display: inline-block;
+  text-align: center;
+  cursor: pointer;
+
+  border: 1.5px solid rgba(0,0,0,0);
+  border-radius: 4px;
+  box-shadow: 0px 1px 5px 0px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12);
+}
+
+.colors .empty {
+  background: url("data:image/gif;base64,R0lGODdhEAAQAPAAAMjIyP///ywAAAAAEAAQAAACH4RvoauIzNyBSyYaLMDZcv15HAaSIlWiJ5Sya/RWVgEAOw==");
+}
+
+
+.colors .color span {
+  line-height: calc(var(--colors-btn-size) - 4px);
+  text-shadow: 0 0 2px rgba(255,255,255,0.5);
+}
