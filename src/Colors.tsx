@@ -18,7 +18,7 @@ function Colors({
 
   const [lastHoveredIndex, setLastHoveredIndex] = useState(-1, "lastHoveredIndex");
 
-  const [groupsState, setGroupsState] = useGroupsContext();
+  const [groupsState, dispatchToGroups] = useGroupsContext();
 
   const onSourceClicked = useCallback(async function onSourceClicked(e: React.FormEvent<HTMLElement>) {
     e.stopPropagation();
@@ -30,14 +30,20 @@ function Colors({
       if (group) {
         const sourceColor = await showColorPickerAsync(group.sourceColor || "#ffffff");
         const newGroup = {...group, sourceColor};
-        setGroupsState((state) => replaceGroup(state, newGroup));
+        dispatchToGroups({
+          type: "ADD_GROUP",
+          group: newGroup,
+        });
         if (onSourceClick) onSourceClick(index);
       }
     } else {
-      setGroupsState((state) => selectGroup(state, index));
+      dispatchToGroups({
+        type: "SELECT_GROUP",
+        selectIndex: index,
+      });
       if (onSourceClick) onSourceClick(index);
     }
-  }, [groupsState, onSourceClick, setGroupsState]);
+  }, [groupsState, onSourceClick, dispatchToGroups]);
 
   const onTargetClicked = useCallback(async function onTargetClicked(e: React.FormEvent<HTMLElement>) {
     e.stopPropagation();
@@ -48,52 +54,70 @@ function Colors({
       if (group) {
         const targetColor = await showColorPickerAsync(group.targetColor || "#ffffff");
         const newGroup = {...group, targetColor};
-        setGroupsState((state) => replaceGroup(state, newGroup));
+        dispatchToGroups({
+          type: "REPLACE_GROUP",
+          group: newGroup,
+        });
         if (onTargetClick) onTargetClick(index);
       }
     } else {
-      setGroupsState((state) => selectGroup(state, index));
+      dispatchToGroups({
+        type: "SELECT_GROUP",
+        selectIndex: index,
+      });
       if (onSourceClick) onSourceClick(index);
     }
-  }, [groupsState, onSourceClick, onTargetClick, setGroupsState]);
+  }, [groupsState, onSourceClick, onTargetClick, dispatchToGroups]);
 
   const onSelectGroup = useCallback(function onSelectGroup(e: React.FormEvent<HTMLElement>) {
     const el = (e.target as any).closest(".color-group");
     const index = +el.getAttribute("data-index")!;
-    setGroupsState((state) => selectGroup(state, index));
-  }, [setGroupsState]);
+    dispatchToGroups({
+      type: "SELECT_GROUP",
+      selectIndex: index,
+    });
+  }, [dispatchToGroups]);
 
   const onMouseMove = useCallback(function onMouseMove(e: React.MouseEvent<HTMLElement>) {
     const el = (e.target as any).closest(".color-group");
     const index = el ? +(el.getAttribute("data-index")!) : -1;
     if (index !== -1 && index !== lastHoveredIndex) {
       setLastHoveredIndex(index);
-      setGroupsState((state) => setHoverGroup(state, index));
+      dispatchToGroups({
+        type: "HOVER_GROUP",
+        hoverIndex: index,
+      });
     }
-  }, [lastHoveredIndex, setLastHoveredIndex, setGroupsState]);
+  }, [lastHoveredIndex, setLastHoveredIndex, dispatchToGroups]);
 
   const onMouseLeave = useCallback(function onMouseLeave(e: React.MouseEvent<HTMLElement>) {
     const el = (e.target as any).closest(".color-group");
     const index = el ? +(el.getAttribute("data-index")!) : -1;
     if (lastHoveredIndex !== -1) {
       setLastHoveredIndex(-1);
-      setGroupsState((state) => setHoverGroup(state, index));
+      dispatchToGroups({
+        type: "HOVER_GROUP",
+        hoverIndex: index,
+      });
     }
-  }, [lastHoveredIndex, setLastHoveredIndex, setGroupsState]);
+  }, [lastHoveredIndex, setLastHoveredIndex, dispatchToGroups]);
 
   const onGroupAdd = useCallback(function onGroupAdd() {
-    setGroupsState((state) => addGroup(state, {
-      hue: 180,
-      hueMax: 185,
-      hueMin: 175,
-      lumMax: 0.95,
-      lumMethod: "clip",
-      lumMin: 0.05,
-      satMax: 0.95,
-      satMethod: "clip",
-      satMin: 0.05,
-    }));
-  }, [setGroupsState]);
+    dispatchToGroups({
+      type: "ADD_GROUP",
+      group: {
+        hue: 180,
+        hueMax: 185,
+        hueMin: 175,
+        lumMax: 0.95,
+        lumMethod: "clip",
+        lumMin: 0.05,
+        satMax: 0.95,
+        satMethod: "clip",
+        satMin: 0.05,
+      },
+    });
+  }, [dispatchToGroups]);
 
   const colors = groupsState.groups
     ? groupsState.groups.map((group) => ({

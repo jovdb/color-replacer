@@ -308,7 +308,7 @@ function Renderer(options: {
   const canvasRef = useRef<HTMLCanvasElement>(null, "Renderer.canvasRef");
   const ctxRef = useRef<CanvasRenderingContext2D>(null, "Renderer.ctxRef");
   const rootRef = useRef<HTMLDivElement>(null, "Renderer.rootRef");
-  const [renderState, setRenderState] = useRenderState();
+  const [renderState, dispatchToRenderer] = useRenderState();
 
   const {background, scrollPosition, zoomFactor } = renderState;
   const canvasEl = canvasRef.current;
@@ -379,8 +379,11 @@ function Renderer(options: {
   }, [canvasRef, ctxRef, onHover, renderState.scrollPosition]);*/
 
   const onScrolled = useCallback(function onScrolled(e: any) {
-    setRenderState((renderState) => setScrollPosition(renderState, {x: e.target.scrollLeft, y: e.target.scrollTop }));
-  }, [setRenderState]);
+    dispatchToRenderer({
+      type: "SET_SCROLLPOSITION",
+      scrollPosition: {x: e.target.scrollLeft, y: e.target.scrollTop },
+    });
+  }, [dispatchToRenderer]);
 
   const bgStyle = background === "transparent" ? `url("data:image/gif;base64,R0lGODdhEAAQAPAAAMjIyP///ywAAAAAEAAQAAACH4RvoauIzNyBSyYaLMDZcv15HAaSIlWiJ5Sya/RWVgEAOw==")` : background;
 

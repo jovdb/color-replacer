@@ -53,8 +53,8 @@ function App() {
   const [selectedTabIndex, setSelectedTabIndex] = useState<number>(0, "selectedTabIndex");
   const [resultHoverText, setResultHoverText] = useState("", "resultHoverText");
 
-  const [groupsState, setGroupsState] = useGroupsContext();
-  const [renderState, setRenderState] = useRenderContext();
+  const [groupsState, dispatchToGroups] = useGroupsContext();
+  const [renderState, dispatchToRenderer] = useRenderContext();
   const [image] = useImage(selectedImageUrl);
 
   useEffect(() => {
@@ -76,8 +76,11 @@ function App() {
   }, [setSelectedTabIndex]);
 
   const onBgSelected = useCallback(function onBgSelected(e: React.ChangeEvent<{ value: any }>) {
-    setRenderState((renderState) => setBackground(renderState, e.target.value));
-  }, [setRenderState]);
+    dispatchToRenderer({
+      type: "SET_BACKGROUND",
+      background: e.target.value,
+    });
+  }, [dispatchToRenderer]);
 
   const onExport = useCallback(function onExport() {
     const json = {
@@ -96,9 +99,12 @@ function App() {
     const result = getFromStorage(selectedImageName);
     if (result) {
       const data = JSON.parse(result);
-      setGroupsState((state) => replaceGroups(state, data.groups));
+      dispatchToGroups({
+        type: "REPLACE_GROUPS",
+        groups: data.groups,
+      });
     }
-  }, [setGroupsState, selectedImageName]);
+  }, [dispatchToGroups, selectedImageName]);
 
   const onImageSelected = useCallback(function onImageSelected(url: string, name: string) {
     setSelectedImageName(name);
@@ -160,10 +166,13 @@ function App() {
       group.satMax = 1;
     }
 
-    setGroupsState((state) => addGroup(groupsState, group));
+    dispatchToGroups({
+      type: "ADD_GROUP",
+      group,
+    });
     setSelectedTabIndex(0);
 
-  }, [groupsState, setGroupsState, setSelectedTabIndex]);
+  }, [dispatchToGroups, setSelectedTabIndex]);
 
   const onResultImageHover = useCallback(function onResultImageHover(rgbHex: string) {
     const rgb = colorspaces.hexToRgb(rgbHex);
@@ -180,12 +189,16 @@ function App() {
   }, [setSelectedTabIndex]);
 
   const onZoomIn = useCallback(function onZoomIn() {
-    setRenderState((renderState) => setZoomFactor(renderState, renderState.zoomFactor * 1.5));
-  }, [setRenderState]);
+    dispatchToRenderer({
+      type: "INCREASE_ZOOM",
+    });
+  }, [dispatchToRenderer]);
 
   const onZoomOut = useCallback(function onZoomOut() {
-    setRenderState((renderState) => setZoomFactor(renderState, renderState.zoomFactor / 1.5));
-  }, [setRenderState]);
+    dispatchToRenderer({
+      type: "DECREASE_ZOOM",
+    });
+  }, [dispatchToRenderer]);
 
   const selectedGroupAtRender = getSelectedGroup(groupsState);
   const adjstedEffectName = effectName ? effectName // If an effect is selected, use it

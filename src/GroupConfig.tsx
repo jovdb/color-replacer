@@ -19,7 +19,7 @@ function GroupConfig({
 
   const maxHueDiff = 119;
 
-  const [groupsState, setGroupsState] = useGroupsContext();
+  const [groupsState, dispatchToGroups] = useGroupsContext();
   const group = getSelectedGroup(groupsState);
 
   const {
@@ -46,42 +46,59 @@ function GroupConfig({
     if (newGroup.hue < newGroup.hueMin) newGroup.hue = newGroup.hueMin;
     if (newGroup.hue > newGroup.hueMax) newGroup.hue = newGroup.hueMax;
     if ((newGroup.hueMax - newGroup.hueMin) > 360) newGroup.hueMax = newGroup.hueMin + 360;
-    setGroupsState((state) => replaceGroup(state, newGroup));
-  }, [group, setGroupsState]);
+    dispatchToGroups({
+      type: "REPLACE_GROUP",
+      group: newGroup,
+    });
+  }, [group, dispatchToGroups]);
 
   const onSatRangeChanged = useCallback(function onSatRangeChanged(_, [newMinValue, newMaxValue]) {
     if (!group || ((newMinValue === group.satMin) && (newMaxValue === group.satMax))) return;
     const newGroup = {...group, satMin: newMinValue / 100, satMax: newMaxValue / 100};
-    setGroupsState((state) => replaceGroup(state, newGroup));
-  }, [group, setGroupsState]);
+    dispatchToGroups({
+      type: "REPLACE_GROUP",
+      group: newGroup,
+    });
+  }, [group, dispatchToGroups]);
 
   const onLumRangeChanged = useCallback(function onLumRangeChanged(_, [newMinValue, newMaxValue]) {
     if (!group) return;
     const newGroup = {...group, lumMin: newMinValue / 100, lumMax: newMaxValue / 100 };
-    setGroupsState((state) => replaceGroup(state, newGroup));
-  }, [group, setGroupsState]);
+    dispatchToGroups({
+      type: "REPLACE_GROUP",
+      group: newGroup,
+    });
+  }, [group, dispatchToGroups]);
 
   const onSatMethodChanged = useCallback(function onSatMethodChanged(e) {
     if (!group) return;
     const value = e.target.value;
     const newGroup = {...group, satMethod: value};
-    setGroupsState((state) => replaceGroup(state, newGroup));
-  }, [group, setGroupsState]);
+    dispatchToGroups({
+      type: "REPLACE_GROUP",
+      group: newGroup,
+    });
+  }, [group, dispatchToGroups]);
 
   const onLumMethodChanged = useCallback(function onLumMethodChanged(e) {
     if (!group) return;
     const value = e.target.value;
     const newGroup = {...group, lumMethod: value};
-    setGroupsState((state) => replaceGroup(state, newGroup));
-  }, [group, setGroupsState]);
+    dispatchToGroups({
+      type: "REPLACE_GROUP",
+      group: newGroup,
+    });
+  }, [group, dispatchToGroups]);
 
   const onExportClicked = useCallback(function onExportClicked(e) {
     if (onExport) onExport();
   }, [onExport]);
 
   const onDeleteClicked = useCallback(function onDeleteClicked() {
-    setGroupsState((state) => deleteGroup(state));
-  }, [setGroupsState]);
+    dispatchToGroups({
+      type: "DELETE_GROUP",
+    });
+  }, [dispatchToGroups]);
 
   const onTabClicked = useCallback(function onTabClicked(_, index) {
     if (onSelectedTabIndexChanged) {

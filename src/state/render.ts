@@ -1,8 +1,17 @@
 import { useContext, useState } from "../hooks/hooks";
-import React from "react";
+import React, { useReducer } from "react";
 import { box, log } from "../logger";
 
 declare global {
+
+  interface IGroupReducerActions {
+    "INCREASE_ZOOM": { type: "INCREASE_ZOOM"};
+    "DECREASE_ZOOM": { type: "DECREASE_ZOOM"};
+    "SET_SCROLLPOSITION": { type: "SET_SCROLLPOSITION", scrollPosition: IScrollPosition};
+    "SET_BACKGROUND": { type: "SET_BACKGROUND", background: string };
+  }
+
+  type IGroupAction = IGroupReducerActions[keyof IGroupReducerActions];
 
   interface IScrollPosition {
     x: number;
@@ -32,7 +41,7 @@ function getBox() {
 }
 
 export function useRenderState() {
-  return useState<IRenderState>(initialState, "renderState");
+  return useReducer(reducer, initialState);
 }
 
 export function useRenderContext() {
@@ -65,4 +74,17 @@ export function setBackground(state: IRenderState, background: string) {
     ...state,
     background,
   };
+}
+
+// Reducer
+function reducer(state: IRenderState, action: IGroupAction) {
+  switch (action.type) {
+    case "INCREASE_ZOOM": return setZoomFactor(state, state.zoomFactor * 1.5);
+    case "DECREASE_ZOOM": return setZoomFactor(state, state.zoomFactor / 1.5);
+    case "SET_SCROLLPOSITION": return setScrollPosition(state, action.scrollPosition);
+    case "SET_BACKGROUND": return setBackground(state, action.background);
+    default:
+      // exhaustiveFail(action.type);
+      return state;
+  }
 }

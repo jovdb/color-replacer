@@ -1,18 +1,18 @@
 import { useContext, useState } from "../hooks/hooks";
-import React from "react";
+import React, { useReducer } from "react";
 import { box, log } from "../logger";
+import { exhaustiveFail } from "src/utils";
 
-/*
 interface IGroupReducerActions {
   "ADD_GROUP": { type: "ADD_GROUP", group: Readonly<IGroup> };
   "DELETE_GROUP": { type: "DELETE_GROUP", deleteIndex?: number };
   "REPLACE_GROUP": { type: "REPLACE_GROUP", replaceIndex?: number, group: Readonly<IGroup> };
   "REPLACE_GROUPS": { type: "REPLACE_GROUPS", groups: ReadonlyArray<Readonly<IGroup>> };
   "SELECT_GROUP": { type: "SELECT_GROUP", selectIndex: number };
+  "HOVER_GROUP": { type: "HOVER_GROUP", hoverIndex: number };
 }
 
 type IGroupAction = IGroupReducerActions[keyof IGroupReducerActions];
-*/
 
 declare global {
 
@@ -57,7 +57,7 @@ function getBox() {
 }
 
 export function useGroupsState() {
-  return useState<IGroupState>(initialState, "groupState");
+  return useReducer(reducer, initialState);
 }
 
 export function useGroupsContext() {
@@ -169,4 +169,19 @@ export function getSelectedGroup(state: IGroupState): Readonly<IGroup> | undefin
 
 export function getHoveredGroup(state: IGroupState): Readonly<IGroup> | undefined {
   return state.groups[state.hoveredIndex];
+}
+
+// Reducer
+function reducer(state: IGroupState, action: IGroupAction) {
+  switch (action.type) {
+    case "ADD_GROUP": return addGroup(state, action.group);
+    case "DELETE_GROUP": return deleteGroup(state, action.deleteIndex);
+    case "REPLACE_GROUP": return replaceGroup(state, action.group, action.replaceIndex);
+    case "REPLACE_GROUPS": return replaceGroups(state, action.groups);
+    case "SELECT_GROUP": return selectGroup(state, action.selectIndex);
+    case "HOVER_GROUP": return setHoverGroup(state, action.hoverIndex);
+    default:
+      // exhaustiveFail(action.type);
+      return state;
+  }
 }
