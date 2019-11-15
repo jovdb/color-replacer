@@ -1,4 +1,5 @@
 import { useState, useEffect } from "./hooks";
+import { useDebugValue } from "react";
 
 interface IImageState {
   image: HTMLImageElement | undefined;
@@ -10,6 +11,8 @@ const defaultState: IImageState = { image: undefined, status: "empty" };
 export function useImage(url: string | undefined, crossOrigin = false) {
 
   const [state, setState] = useState<IImageState>(defaultState, "image");
+  useDebugValue(state);
+
   const image = state.image;
   const status = state.status;
 

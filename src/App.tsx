@@ -9,7 +9,7 @@ import * as histogramData from "./HistogramData";
 import { IHistogram } from "./HistogramData";
 import { useState, useCallback, withDebug } from "./hooks/hooks";
 import { ImageSelector } from "./ImageSelector";
-import { useGroupsContext, getSelectedGroup, replaceGroups, addGroup } from "./state/groups";
+import { useGroupsContext, getSelectedGroup } from "./state/groups";
 import Renderer from "./Renderer";
 import "./style.css";
 import { getImageData } from "./imageData";
@@ -18,7 +18,7 @@ import { save } from "./utils";
 import ZoomInIcon from "@material-ui/icons/ZoomIn";
 import ZoomOutIcon from "@material-ui/icons/ZoomOut";
 import { pipe } from "./pipe";
-import { useRenderContext, setZoomFactor, setBackground } from "./state/render";
+import { useRenderContext } from "./state/render";
 
 const storage: any = {};
 function setToStorage(key: string, value: string) {
@@ -49,7 +49,6 @@ function App() {
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | undefined>(undefined, "selectedImageUrl");
   const [histogram, setHistogram] = useState<IHistogram | undefined>(undefined, "histogram");
   const [highlightGroup, setHighlightGroup] = useState<IGroup | undefined>(undefined, "highlightGroup");
-  const [effectName, setEffectName] = useState<string>("", "effectName");
   const [selectedTabIndex, setSelectedTabIndex] = useState<number>(0, "selectedTabIndex");
   const [resultHoverText, setResultHoverText] = useState("", "resultHoverText");
 
@@ -62,9 +61,12 @@ function App() {
   }, [image]);
 
   const onEffectSelected = useCallback(function onEffectSelected(e: React.ChangeEvent<{ value: any }>) {
-    const newEffectName = e.target.value;
-    setEffectName(newEffectName);
-  }, [setEffectName]);
+    const effectName = e.target.value;
+    dispatchToRenderer({
+      type: "SET_EFFECT",
+      effectName,
+    });
+  }, [dispatchToRenderer]);
 
   useEffect(() => {
     const hoveredGroup = groupsState.groups[groupsState.hoveredIndex];
@@ -201,7 +203,7 @@ function App() {
   }, [dispatchToRenderer]);
 
   const selectedGroupAtRender = getSelectedGroup(groupsState);
-  const adjstedEffectName = effectName ? effectName // If an effect is selected, use it
+  const adjstedEffectName = renderState.effectName ? renderState.effectName // If an effect is selected, use it
     : selectedGroupAtRender && !selectedGroupAtRender.targetColor ? "matchingPixels"
     : "apply";
 
@@ -273,7 +275,7 @@ function App() {
       <br/>
       <FormControl style={{width: "100%"}}>
         <InputLabel>Select effect</InputLabel>
-        <Select value={effectName} onChange={onEffectSelected}>
+        <Select value={renderState.effectName} onChange={onEffectSelected}>
           <MenuItem value={""} key={""}>Auto</MenuItem>)}
           {/*
           <MenuItem value={"red"} key={"red"}>Red</MenuItem>)}

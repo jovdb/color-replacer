@@ -4,7 +4,7 @@ import { onlyColorValue } from "./effects/onlyColorValue";
 import { onlyHue, onlyLuminance, onlySaturation } from "./effects/onlyHslValue";
 import { useRef, withDebug, useLayoutEffect, useCallback, useEffect } from "./hooks/hooks";
 import { pipe } from "./pipe";
-import { useRenderState, setScrollPosition } from "./state/render";
+import { useRenderContext } from "./state/render";
 
 function getImageData(imageEl: HTMLImageElement, canvasEl?: HTMLCanvasElement ): ImageData {
   const canvas = canvasEl ? canvasEl : document.createElement("canvas");
@@ -308,7 +308,7 @@ function Renderer(options: {
   const canvasRef = useRef<HTMLCanvasElement>(null, "Renderer.canvasRef");
   const ctxRef = useRef<CanvasRenderingContext2D>(null, "Renderer.ctxRef");
   const rootRef = useRef<HTMLDivElement>(null, "Renderer.rootRef");
-  const [renderState, dispatchToRenderer] = useRenderState();
+  const [renderState, dispatchToRenderer] = useRenderContext();
 
   const {background, scrollPosition, zoomFactor } = renderState;
   const canvasEl = canvasRef.current;
@@ -388,7 +388,6 @@ function Renderer(options: {
   const bgStyle = background === "transparent" ? `url("data:image/gif;base64,R0lGODdhEAAQAPAAAMjIyP///ywAAAAAEAAQAAACH4RvoauIzNyBSyYaLMDZcv15HAaSIlWiJ5Sya/RWVgEAOw==")` : background;
 
   return <div className="renderer" onScroll={onScrolled} ref={rootRef}>
-    DEBUG ZOOMFACTOR: {zoomFactor * 100}%
     <canvas ref={canvasRef} onClick={onCanvasClick} style={{background:  bgStyle, transform: `scale(${zoomFactor})`}}></canvas>
   </div>;
 }

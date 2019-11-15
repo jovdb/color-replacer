@@ -1,5 +1,5 @@
-import { useContext, useState } from "../hooks/hooks";
-import React, { useReducer } from "react";
+import { useContext, useReducer } from "../hooks/hooks";
+import React from "react";
 import { box, log } from "../logger";
 
 declare global {
@@ -9,6 +9,7 @@ declare global {
     "DECREASE_ZOOM": { type: "DECREASE_ZOOM"};
     "SET_SCROLLPOSITION": { type: "SET_SCROLLPOSITION", scrollPosition: IScrollPosition};
     "SET_BACKGROUND": { type: "SET_BACKGROUND", background: string };
+    "SET_EFFECT": { type: "SET_EFFECT", effectName: string };
   }
 
   type IGroupAction = IGroupReducerActions[keyof IGroupReducerActions];
@@ -22,6 +23,7 @@ declare global {
     readonly zoomFactor: number;
     readonly scrollPosition: IScrollPosition;
     readonly background: string;
+    readonly effectName: string;
   }
 
   export interface IRenderContext extends ReturnType<typeof useRenderState> { }
@@ -32,6 +34,7 @@ const initialState: IRenderState = {
   zoomFactor: 1,
   scrollPosition: { x: 0 , y: 0 },
   background: "transparent",
+  effectName: "",
 };
 
 export const RenderContext = React.createContext<IRenderContext>({} as any);
@@ -41,7 +44,7 @@ function getBox() {
 }
 
 export function useRenderState() {
-  return useReducer(reducer, initialState);
+  return useReducer(renderReducer, initialState);
 }
 
 export function useRenderContext() {
@@ -52,15 +55,16 @@ export function useRenderContext() {
 
 // Actions
 
-export function setZoomFactor(state: IRenderState, zoomFactor: number) {
-  log(getBox(), `Set zoom factor: ${zoomFactor}`);
+function setZoomFactor(state: IRenderState, zoomFactor: number) {
+
+  // TODO, also scale scroll position, use % or ratio?
   return {
     ...state,
     zoomFactor,
   };
 }
 
-export function setScrollPosition(state: IRenderState, scrollPosition: IScrollPosition) {
+function setScrollPosition(state: IRenderState, scrollPosition: IScrollPosition) {
   log(getBox(), `Set scroll position: ${JSON.stringify(scrollPosition)}`);
   return {
     ...state,
@@ -68,7 +72,7 @@ export function setScrollPosition(state: IRenderState, scrollPosition: IScrollPo
   };
 }
 
-export function setBackground(state: IRenderState, background: string) {
+function setBackground(state: IRenderState, background: string) {
   log(getBox(), `Set background: ${background}`);
   return {
     ...state,
@@ -76,13 +80,22 @@ export function setBackground(state: IRenderState, background: string) {
   };
 }
 
+function setEffectName(state: IRenderState, effectName: string) {
+  log(getBox(), `Set effect: ${effectName}`);
+  return {
+    ...state,
+    effectName,
+  };
+}
+
 // Reducer
-function reducer(state: IRenderState, action: IGroupAction) {
+function renderReducer(state: IRenderState, action: IGroupAction) {
   switch (action.type) {
     case "INCREASE_ZOOM": return setZoomFactor(state, state.zoomFactor * 1.5);
     case "DECREASE_ZOOM": return setZoomFactor(state, state.zoomFactor / 1.5);
     case "SET_SCROLLPOSITION": return setScrollPosition(state, action.scrollPosition);
     case "SET_BACKGROUND": return setBackground(state, action.background);
+    case "SET_EFFECT": return setEffectName(state, action.effectName);
     default:
       // exhaustiveFail(action.type);
       return state;

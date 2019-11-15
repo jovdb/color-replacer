@@ -4,7 +4,7 @@ import React from "react";
 import "./colors.css";
 import { useState, withDebug, useCallback } from "./hooks/hooks";
 import { showColorPickerAsync } from "./showColorPicker";
-import { useGroupsContext, replaceGroup, selectGroup, setHoverGroup, addGroup, getSelectedGroup } from "./state/groups";
+import { useGroupsContext, replaceGroup, selectGroup, setHoverGroup, addGroup, getSelectedGroup, canSetHoverGroup, useGroupsState } from "./state/groups";
 import { colorspaces } from "./colorspaces";
 import { pipe } from "./pipe";
 
@@ -15,8 +15,6 @@ function Colors({
   onSourceClick?(i: number): void;
   onTargetClick?(i: number): void;
 }) {
-
-  const [lastHoveredIndex, setLastHoveredIndex] = useState(-1, "lastHoveredIndex");
 
   const [groupsState, dispatchToGroups] = useGroupsContext();
 
@@ -81,26 +79,23 @@ function Colors({
   const onMouseMove = useCallback(function onMouseMove(e: React.MouseEvent<HTMLElement>) {
     const el = (e.target as any).closest(".color-group");
     const index = el ? +(el.getAttribute("data-index")!) : -1;
-    if (index !== -1 && index !== lastHoveredIndex) {
-      setLastHoveredIndex(index);
+    if (index !== -1 && canSetHoverGroup(groupsState, index)) {
       dispatchToGroups({
         type: "HOVER_GROUP",
         hoverIndex: index,
       });
     }
-  }, [lastHoveredIndex, setLastHoveredIndex, dispatchToGroups]);
+  }, [groupsState, dispatchToGroups]);
 
   const onMouseLeave = useCallback(function onMouseLeave(e: React.MouseEvent<HTMLElement>) {
-    const el = (e.target as any).closest(".color-group");
-    const index = el ? +(el.getAttribute("data-index")!) : -1;
-    if (lastHoveredIndex !== -1) {
-      setLastHoveredIndex(-1);
+    const index = -1;
+    if (canSetHoverGroup(groupsState, index)) {
       dispatchToGroups({
         type: "HOVER_GROUP",
         hoverIndex: index,
       });
     }
-  }, [lastHoveredIndex, setLastHoveredIndex, dispatchToGroups]);
+  }, [groupsState, dispatchToGroups]);
 
   const onGroupAdd = useCallback(function onGroupAdd() {
     dispatchToGroups({

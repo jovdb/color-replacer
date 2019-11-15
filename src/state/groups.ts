@@ -1,5 +1,5 @@
-import { useContext, useState } from "../hooks/hooks";
-import React, { useReducer } from "react";
+import { useContext, useReducer } from "../hooks/hooks";
+import React from "react";
 import { box, log } from "../logger";
 import { exhaustiveFail } from "src/utils";
 
@@ -57,7 +57,7 @@ function getBox() {
 }
 
 export function useGroupsState() {
-  return useReducer(reducer, initialState);
+  return useReducer(groupsReducer, initialState);
 }
 
 export function useGroupsContext() {
@@ -71,7 +71,6 @@ export type SetState<S> = (state: S | ((state: S) => S)) => void;
 // Actions
 
 export function addGroup(state: IGroupState, group: Readonly<IGroup>) {
-  log(getBox(), `Adding group: ${JSON.stringify(group, undefined, "  ")}`);
   return {
     ...state,
     selectedIndex: state.groups.length,
@@ -89,7 +88,6 @@ export function canDeleteGroup(state: IGroupState, deleteIndex?: number) {
 export function deleteGroup(state: IGroupState, deleteIndex?: number) {
   if (deleteIndex === undefined) deleteIndex = state.selectedIndex;
   if (!canDeleteGroup(state, deleteIndex)) return state;
-  log(getBox(), `Deleting group: ${deleteIndex}: ${JSON.stringify(state.groups[deleteIndex], undefined, "  ")}`);
   return {
     ...state,
     selectedIndex: state.selectedIndex === deleteIndex ? -1 : state.selectedIndex,
@@ -107,8 +105,6 @@ export function canReplaceGroup(state: IGroupState, replaceIndex?: number) {
 export function replaceGroup(state: IGroupState, group: IGroup, replaceIndex?: number) {
   if (replaceIndex === undefined) replaceIndex = state.selectedIndex;
   if (!canReplaceGroup(state, replaceIndex)) return state;
-
-  log(getBox(), `Replacing group: ${replaceIndex}: from ${JSON.stringify(state.groups[replaceIndex], undefined, "  ")} to ${JSON.stringify(group, undefined, "  ")}`);
   const newGroups = [... state.groups]; // clone
   newGroups[replaceIndex] = group;
   return {
@@ -118,7 +114,6 @@ export function replaceGroup(state: IGroupState, group: IGroup, replaceIndex?: n
 }
 
 export function replaceGroups(state: IGroupState, groups: ReadonlyArray<IGroup>) {
-  log(getBox(), `Replacing groups: ${JSON.stringify(groups, undefined, "  ")}`);
   return {
     ...state,
     groups,
@@ -136,8 +131,6 @@ export function canSelectGroup(state: IGroupState, selectIndex?: number) {
 export function selectGroup(state: IGroupState, selectIndex?: number) {
   if (selectIndex === undefined) selectIndex = state.selectedIndex;
   if (!canSelectGroup(state, selectIndex)) return state;
-
-  log(getBox(), `Select group: ${selectIndex}`);
   return {
     ...state,
     selectedIndex: selectIndex,
@@ -155,8 +148,6 @@ export function canSetHoverGroup(state: IGroupState, selectIndex?: number) {
 export function setHoverGroup(state: IGroupState, hoverIndex?: number) {
   if (hoverIndex === undefined) hoverIndex = state.selectedIndex;
   if (!canSetHoverGroup(state, hoverIndex)) return state;
-
-  log(getBox(), `Hovering group: ${hoverIndex}`);
   return {
     ...state,
     hoveredIndex: hoverIndex,
@@ -172,7 +163,7 @@ export function getHoveredGroup(state: IGroupState): Readonly<IGroup> | undefine
 }
 
 // Reducer
-function reducer(state: IGroupState, action: IGroupAction) {
+function groupsReducer(state: IGroupState, action: IGroupAction) {
   switch (action.type) {
     case "ADD_GROUP": return addGroup(state, action.group);
     case "DELETE_GROUP": return deleteGroup(state, action.deleteIndex);
