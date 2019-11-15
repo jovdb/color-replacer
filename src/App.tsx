@@ -48,7 +48,6 @@ function App() {
   const [selectedImageName, setSelectedImageName] = useState<string | undefined>(undefined, "selectedImageName");
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | undefined>(undefined, "selectedImageUrl");
   const [histogram, setHistogram] = useState<IHistogram | undefined>(undefined, "histogram");
-  const [highlightGroup, setHighlightGroup] = useState<IGroup | undefined>(undefined, "highlightGroup");
   const [selectedTabIndex, setSelectedTabIndex] = useState<number>(0, "selectedTabIndex");
   const [resultHoverText, setResultHoverText] = useState("", "resultHoverText");
 
@@ -67,11 +66,6 @@ function App() {
       effectName,
     });
   }, [dispatchToRenderer]);
-
-  useEffect(() => {
-    const hoveredGroup = groupsState.groups[groupsState.hoveredIndex];
-    setHighlightGroup(hoveredGroup);
-  }, [groupsState.groups, groupsState.hoveredIndex, setHighlightGroup]);
 
   const onSelectedTabIndexChanged = useCallback(function onSelectedTabIndexChanged(index) {
     setSelectedTabIndex(index);
@@ -111,8 +105,7 @@ function App() {
   const onImageSelected = useCallback(function onImageSelected(url: string, name: string) {
     setSelectedImageName(name);
     setSelectedImageUrl(url);
-    setHighlightGroup(undefined);
-  }, [setSelectedImageName, setSelectedImageUrl, setHighlightGroup]);
+  }, [setSelectedImageName, setSelectedImageUrl]);
 
   const onImageClicked = useCallback(function onImageClicked(pixelColor: string) {
 
@@ -242,7 +235,7 @@ function App() {
       <Histogram
         histogram={histogram}
         getColor={getColor}
-        highlightGroup={highlightGroup || selectedGroupAtRender}
+        highlightGroup={groupsState.groups[groupsState.hoveredIndex] || selectedGroupAtRender}
       />
       <br/>
 
