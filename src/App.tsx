@@ -5,20 +5,17 @@ import Colors from "./Colors";
 import { colorspaces, Hsl } from "./colorspaces";
 import GroupConfig from "./GroupConfig";
 import Histogram from "./Histogram";
-import * as histogramData from "./HistogramData";
-import { IHistogram } from "./HistogramData";
 import { useState, useCallback, withDebug } from "./hooks/hooks";
 import { ImageSelector } from "./ImageSelector";
 import { useGroupsContext, getSelectedGroup } from "./state/groups";
 import Renderer from "./Renderer";
 import "./style.css";
-import { getImageData } from "./imageData";
-import { useImage } from "./hooks/useImageLoader";
 import { save } from "./utils";
 import ZoomInIcon from "@material-ui/icons/ZoomIn";
 import ZoomOutIcon from "@material-ui/icons/ZoomOut";
 import { pipe } from "./pipe";
 import { useRenderContext } from "./state/render";
+import { useImageContext } from "./state/image";
 
 const storage: any = {};
 function setToStorage(key: string, value: string) {
@@ -45,19 +42,17 @@ function getColor(index: number) {
 
 function App() {
 
-  const [selectedImageName, setSelectedImageName] = useState<string | undefined>(undefined, "selectedImageName");
-  const [selectedImageUrl, setSelectedImageUrl] = useState<string | undefined>(undefined, "selectedImageUrl");
-  const [histogram, setHistogram] = useState<IHistogram | undefined>(undefined, "histogram");
   const [selectedTabIndex, setSelectedTabIndex] = useState<number>(0, "selectedTabIndex");
-  const [resultHoverText, setResultHoverText] = useState("", "resultHoverText");
+  const [resultText, setResultText] = useState("", "resultText");
 
   const [groupsState, dispatchToGroups] = useGroupsContext();
   const [renderState, dispatchToRenderer] = useRenderContext();
-  const [image] = useImage(selectedImageUrl);
+  const [imageState, dispatchToImage] = useImageContext();
 
+/*
   useEffect(() => {
     setHistogram(image ? histogramData.createHueHistogram(getImageData(image)) : undefined);
-  }, [image]);
+  }, [image]);*/
 
   const onEffectSelected = useCallback(function onEffectSelected(e: React.ChangeEvent<{ value: any }>) {
     const effectName = e.target.value;
@@ -81,18 +76,18 @@ function App() {
   const onExport = useCallback(function onExport() {
     const json = {
       groups: groupsState.groups,
-      image: selectedImageName,
+      image: imageState.name,
     };
     console.log(json);
-    if (selectedImageName) {
-      setToStorage(selectedImageName, JSON.stringify(json, undefined, 2));
+    if (imageState.name) {
+      setToStorage(imageState.name, JSON.stringify(json, undefined, 2));
       save(json, `export.json`);
     }
-  }, [groupsState.groups, selectedImageName]);
+  }, [groupsState.groups, imageState.name]);
 
   useEffect(() => {
-    if (!selectedImageName) return;
-    const result = getFromStorage(selectedImageName);
+    if (!imageState.name) return;
+    const result = getFromStorage(imageState.name);
     if (result) {
       const data = JSON.parse(result);
       dispatchToGroups({
@@ -100,12 +95,7 @@ function App() {
         groups: data.groups,
       });
     }
-  }, [dispatchToGroups, selectedImageName]);
-
-  const onImageSelected = useCallback(function onImageSelected(url: string, name: string) {
-    setSelectedImageName(name);
-    setSelectedImageUrl(url);
-  }, [setSelectedImageName, setSelectedImageUrl]);
+  }, [dispatchToGroups, imageState.name]);
 
   const onImageClicked = useCallback(function onImageClicked(pixelColor: string) {
 
@@ -169,11 +159,11 @@ function App() {
 
   }, [dispatchToGroups, setSelectedTabIndex]);
 
-  const onResultImageHover = useCallback(function onResultImageHover(rgbHex: string) {
+  const onResultImageClicked = useCallback(function onResultImageClicked(rgbHex: string) {
     const rgb = colorspaces.hexToRgb(rgbHex);
     const hsl = rgb.toHsl();
-    setResultHoverText(`Color: ${rgbHex}, H: ${hsl.h.toFixed(3)}, S: ${hsl.s.toFixed(3)}, L: ${hsl.l.toFixed(3)}`);
-  }, [setResultHoverText]);
+    setResultText(`Color: ${rgbHex}, H: ${hsl.h.toFixed(3)}, S: ${hsl.s.toFixed(3)}, L: ${hsl.l.toFixed(3)}`);
+  }, [setResultText]);
 
   const onSourceColorClick = useCallback(function onSourceColorClick() {
     setSelectedTabIndex(0);
@@ -203,7 +193,7 @@ function App() {
   return <div className="app">
   <Grid container spacing={3}>
     <Grid item xs={12} md={6}>
-      <ImageSelector onImageChanged={onImageSelected}/>
+      <ImageSelector/>
     </Grid>
     <Grid item xs={12} md={6}>
     <Typography variant="body1" component="span" style={{marginRight: "1em"}}>Background color: </Typography>
@@ -227,13 +217,13 @@ function App() {
     <Grid item xs={12} md={6}>
 
       <Renderer
-        image={image}
+        image={imageState.image}
         onClick={onImageClicked}
       ></Renderer>
       <br/><br/>
 
       <Histogram
-        histogram={histogram}
+        histogram={imageState.histogram}
         getColor={getColor}
         highlightGroup={groupsState.groups[groupsState.hoveredIndex] || selectedGroupAtRender}
       />
@@ -258,13 +248,13 @@ function App() {
 
     <Grid item xs={12} md={6}>
       <Renderer
-        image={image}
+        image={imageState.image}
         effectName={adjstedEffectName}
         groups={groupsState.groups}
         selectedGroup={ selectedGroupAtRender }
-        onClick={onResultImageHover}
+        onClick={onResultImageClicked}
       />
-      <div style={{fontFamily: "monospace"}}>{resultHoverText}</div>
+      <div style={{fontFamily: "monospace"}}>{resultText}</div>
       <br/>
       <FormControl style={{width: "100%"}}>
         <InputLabel>Select effect</InputLabel>

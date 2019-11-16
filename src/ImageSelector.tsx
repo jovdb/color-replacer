@@ -8,6 +8,10 @@ import { useState, withDebug, useCallback, useEffect } from "./hooks/hooks";
 import { images } from "./images";
 import { fileToBase64 } from "./utils";
 import { pipe } from "./pipe";
+import { useImageContext, loadImageAsync } from "./state/image";
+import { createHueHistogram } from "./HistogramData";
+import { getImageData } from "./imageData";
+import { useGroupsContext } from "./state/groups";
 
 const useStyles = makeStyles((theme: Theme) => ({
   button: {
@@ -24,32 +28,48 @@ const useStyles = makeStyles((theme: Theme) => ({
 export const ImageSelector = pipe(
 
   function ImageSelector({
-    onImageChanged,
     imageEl,
   }: {
 
-    /** Called when an image is selected */
-    onImageChanged?: (url: string, name: string) => void;
     /** Load images in this element (Optional) */
     imageEl?: HTMLImageElement;
   }) {
 
     const imageIndex = 0;
     const [selectedImageIndex, setSelectedImageIndex] = useState(imageIndex, "selectedImageIndex");
+    const [, dispatchToImage] = useImageContext();
+    const [, dispatchToGroups] = useGroupsContext();
 
-    // Run once on first render
-    useEffect(() => {
-      const imageInfo = images[imageIndex];
-      // if (onImageChanged) onImageChanged(imageInfo.url, imageInfo.name);
-    }, []);
+    const loadImage = useCallback(function loadImage(name: string, url: string) {
+      dispatchToImage({
+        type: "LOAD_IMAGE",
+        name,
+        url,
+      });
+
+      loadImageAsync(url)
+        .then((image) => dispatchToImage({
+          type: "LOAD_IMAGE_SUCCES",
+          url,
+          image,
+          histogram: createHueHistogram(getImageData(image)),
+        }))
+        .catch(() => dispatchToImage({
+          type: "LOAD_IMAGE_ERROR",
+          url,
+        }));
+    }, [dispatchToImage]);
 
     const handleSelectChange = useCallback(function handleSelectChange(e: React.ChangeEvent<{ value: any }>) {
       const imageIndex2 = +e.target.value;
-      const imageInfo = images[imageIndex2];
-
+      const {name, url} = images[imageIndex2];
       setSelectedImageIndex(imageIndex);
-      if (onImageChanged) onImageChanged(imageInfo.url, imageInfo.name);
-    }, [onImageChanged, setSelectedImageIndex]);
+      dispatchToGroups({
+        type: "REPLACE_GROUPS",
+        groups: [],
+      });
+      loadImage(name, url);
+    }, [dispatchToGroups, loadImage]);
 
     const handleFileSelect = useCallback(async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
       const file = (e as any).currentTarget.files[0] as File;
@@ -57,8 +77,12 @@ export const ImageSelector = pipe(
 
       const base64 = await fileToBase64(file);
       setSelectedImageIndex(-1);
-      if (onImageChanged) onImageChanged(base64, file.name);
-    }, [onImageChanged, setSelectedImageIndex]);
+      dispatchToGroups({
+        type: "REPLACE_GROUPS",
+        groups: [],
+      });
+      loadImage(file.name, base64);
+    }, [dispatchToGroups, loadImage]);
 
     const classes = useStyles();
 

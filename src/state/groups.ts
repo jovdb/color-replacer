@@ -7,7 +7,7 @@ interface IGroupReducerActions {
   "ADD_GROUP": { type: "ADD_GROUP", group: Readonly<IGroup> };
   "DELETE_GROUP": { type: "DELETE_GROUP", deleteIndex?: number };
   "REPLACE_GROUP": { type: "REPLACE_GROUP", replaceIndex?: number, group: Readonly<IGroup> };
-  "REPLACE_GROUPS": { type: "REPLACE_GROUPS", groups: ReadonlyArray<Readonly<IGroup>> };
+  "REPLACE_GROUPS": { type: "REPLACE_GROUPS", groups: ReadonlyArray<Readonly<IGroup>>, selectIndex?: number };
   "SELECT_GROUP": { type: "SELECT_GROUP", selectIndex: number };
   "HOVER_GROUP": { type: "HOVER_GROUP", hoverIndex: number };
 }
@@ -113,10 +113,11 @@ export function replaceGroup(state: IGroupState, group: IGroup, replaceIndex?: n
   };
 }
 
-export function replaceGroups(state: IGroupState, groups: ReadonlyArray<IGroup>) {
+export function replaceGroups(state: IGroupState, groups: ReadonlyArray<IGroup>, selectIndex = -1) {
   return {
     ...state,
     groups,
+    selectedIndex: selectIndex,
   };
 }
 
@@ -168,7 +169,7 @@ function groupsReducer(state: IGroupState, action: IGroupAction) {
     case "ADD_GROUP": return addGroup(state, action.group);
     case "DELETE_GROUP": return deleteGroup(state, action.deleteIndex);
     case "REPLACE_GROUP": return replaceGroup(state, action.group, action.replaceIndex);
-    case "REPLACE_GROUPS": return replaceGroups(state, action.groups);
+    case "REPLACE_GROUPS": return replaceGroups(state, action.groups, action.selectIndex);
     case "SELECT_GROUP": return selectGroup(state, action.selectIndex);
     case "HOVER_GROUP": return setHoverGroup(state, action.hoverIndex);
     default:

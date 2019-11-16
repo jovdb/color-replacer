@@ -4,7 +4,7 @@ import { box, log } from "../logger";
 
 declare global {
 
-  interface IGroupReducerActions {
+  interface IRenderReducerActions {
     "INCREASE_ZOOM": { type: "INCREASE_ZOOM"};
     "DECREASE_ZOOM": { type: "DECREASE_ZOOM"};
     "SET_SCROLLPOSITION": { type: "SET_SCROLLPOSITION", scrollPosition: IScrollPosition};
@@ -12,7 +12,7 @@ declare global {
     "SET_EFFECT": { type: "SET_EFFECT", effectName: string };
   }
 
-  type IGroupAction = IGroupReducerActions[keyof IGroupReducerActions];
+  type IRenderAction = IRenderReducerActions[keyof IRenderReducerActions];
 
   interface IScrollPosition {
     x: number;
@@ -89,7 +89,7 @@ function setEffectName(state: IRenderState, effectName: string) {
 }
 
 // Reducer
-function renderReducer(state: IRenderState, action: IGroupAction) {
+function renderReducer(state: IRenderState, action: IRenderAction) {
   switch (action.type) {
     case "INCREASE_ZOOM": return setZoomFactor(state, state.zoomFactor * 1.5);
     case "DECREASE_ZOOM": return setZoomFactor(state, state.zoomFactor / 1.5);
