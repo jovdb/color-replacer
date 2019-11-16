@@ -1,6 +1,5 @@
 import { Link, MenuItem, Tab, Tabs, Typography } from "@material-ui/core";
 import { Box, Button, Card, Select, Slider } from "@material-ui/core";
-import DeleteIcon from "@material-ui/icons/Delete";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
 import React from "react";
 import { withDebug, useCallback } from "./hooks/hooks";
@@ -94,12 +93,6 @@ function GroupConfig({
     if (onExport) onExport();
   }, [onExport]);
 
-  const onDeleteClicked = useCallback(function onDeleteClicked() {
-    dispatchToGroups({
-      type: "DELETE_GROUP",
-    });
-  }, [dispatchToGroups]);
-
   const onTabClicked = useCallback(function onTabClicked(_, index) {
     if (onSelectedTabIndexChanged) {
       onSelectedTabIndexChanged(index);
@@ -110,12 +103,6 @@ function GroupConfig({
     <Tabs aria-label="simple tabs" value={selectedTabIndex} onChange={onTabClicked}>
       <Tab label="Source"/>
       <Tab label="Target"/>
-      <Button
-        size="small"
-        onClick={onDeleteClicked}
-        disabled={!group}>
-        <DeleteIcon />
-      </Button>
       <Button
         disabled={!group}
         onClick={onExportClicked}>

@@ -377,8 +377,8 @@ function Renderer(options: {
 
   const bgStyle = background === "transparent" ? `url("data:image/gif;base64,R0lGODdhEAAQAPAAAMjIyP///ywAAAAAEAAQAAACH4RvoauIzNyBSyYaLMDZcv15HAaSIlWiJ5Sya/RWVgEAOw==")` : background;
 
-  return <div className="renderer" onScroll={onScrolled} ref={rootRef}>
-    <animated.canvas ref={canvasRef} onClick={onCanvasClick} style={{background: bgStyle, ...canvasZoom}}></animated.canvas>
+  return <div className="renderer" onScroll={onScrolled} ref={rootRef} style={{background: bgStyle}}>
+    <animated.canvas ref={canvasRef} onClick={onCanvasClick} style={canvasZoom}></animated.canvas>
   </div>;
 }
 

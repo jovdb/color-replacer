@@ -1,5 +1,6 @@
 import { Button, ButtonBase } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
+import DeleteIcon from "@material-ui/icons/Delete";
 import React from "react";
 import "./colors.css";
 import { useState, withDebug, useCallback } from "./hooks/hooks";
@@ -114,6 +115,12 @@ function Colors({
     });
   }, [dispatchToGroups]);
 
+  const onDeleteClicked = useCallback(function onDeleteClicked() {
+    dispatchToGroups({
+      type: "DELETE_GROUP",
+    });
+  }, [dispatchToGroups]);
+
   const colors = groupsState.groups
     ? groupsState.groups.map((group) => ({
       from: group.sourceColor || colorspaces.hslToRgb(group.hue / 360.0, 1, (group.lumMax + group.lumMin) / 2).toHex(),
@@ -150,6 +157,13 @@ function Colors({
     <Button onClick={onGroupAdd}>
       <AddIcon/>
     </Button>
+
+    <Button
+        size="small"
+        onClick={onDeleteClicked}
+        disabled={groupsState.selectedIndex < 0}>
+        <DeleteIcon />
+      </Button>
   </div>;
 }
 
