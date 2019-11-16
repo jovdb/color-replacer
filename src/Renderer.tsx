@@ -5,6 +5,7 @@ import { onlyHue, onlyLuminance, onlySaturation } from "./effects/onlyHslValue";
 import { useRef, withDebug, useLayoutEffect, useCallback, useEffect } from "./hooks/hooks";
 import { pipe } from "./pipe";
 import { useRenderContext } from "./state/render";
+import { useSpring, animated } from "react-spring";
 
 function getImageData(imageEl: HTMLImageElement, canvasEl?: HTMLCanvasElement ): ImageData {
   const canvas = canvasEl ? canvasEl : document.createElement("canvas");
@@ -309,8 +310,8 @@ function Renderer(options: {
   const ctxRef = useRef<CanvasRenderingContext2D>(null, "Renderer.ctxRef");
   const rootRef = useRef<HTMLDivElement>(null, "Renderer.rootRef");
   const [renderState, dispatchToRenderer] = useRenderContext();
-
   const {background, scrollPosition, zoomFactor } = renderState;
+  const canvasZoom = useSpring({ transform: `scale(${zoomFactor})` });
   const canvasEl = canvasRef.current;
 
   // Create context once
@@ -366,17 +367,6 @@ function Renderer(options: {
     if (onClick) onClick(rgb.toHex());
 
   }, [canvasRef, ctxRef, onClick, scrollPosition]);
-/*
-  const onCanvasHover = useCallback((e: any) => {
-
-    if (!canvasRef.current || !ctxRef.current) return;
-    const {x, y} = getPointerPosition(canvasRef.current, e, renderState.scrollPosition);
-    const imageData = ctxRef.current.getImageData(x, y, 1, 1);
-    const rgb = colorspaces.imageDataToRgb(imageData, 0);
-
-    if (onHover) onHover(rgb.toHex());
-
-  }, [canvasRef, ctxRef, onHover, renderState.scrollPosition]);*/
 
   const onScrolled = useCallback(function onScrolled(e: any) {
     dispatchToRenderer({
@@ -388,7 +378,7 @@ function Renderer(options: {
   const bgStyle = background === "transparent" ? `url("data:image/gif;base64,R0lGODdhEAAQAPAAAMjIyP///ywAAAAAEAAQAAACH4RvoauIzNyBSyYaLMDZcv15HAaSIlWiJ5Sya/RWVgEAOw==")` : background;
 
   return <div className="renderer" onScroll={onScrolled} ref={rootRef}>
-    <canvas ref={canvasRef} onClick={onCanvasClick} style={{background:  bgStyle, transform: `scale(${zoomFactor})`}}></canvas>
+    <animated.canvas ref={canvasRef} onClick={onCanvasClick} style={{background: bgStyle, ...canvasZoom}}></animated.canvas>
   </div>;
 }
 

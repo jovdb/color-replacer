@@ -47,7 +47,7 @@ export const ImageSelector = pipe(
         url,
       });
 
-      loadImageAsync(url)
+      loadImageAsync(url, {crossOrigin: "anonymous"})
         .then((image) => dispatchToImage({
           type: "LOAD_IMAGE_SUCCES",
           url,
