@@ -7,6 +7,7 @@ interface IGroupReducerActions {
   "ADD_GROUP": { type: "ADD_GROUP", group: Readonly<IGroup> };
   "DELETE_GROUP": { type: "DELETE_GROUP", deleteIndex?: number };
   "REPLACE_GROUP": { type: "REPLACE_GROUP", replaceIndex?: number, group: Readonly<IGroup> };
+  "MOVE_GROUP": { type: "MOVE_GROUP", fromIndex?: number; toIndex: number };
   "REPLACE_GROUPS": { type: "REPLACE_GROUPS", groups: ReadonlyArray<Readonly<IGroup>>, selectIndex?: number };
   "SELECT_GROUP": { type: "SELECT_GROUP", selectIndex: number };
   "HOVER_GROUP": { type: "HOVER_GROUP", hoverIndex: number };
@@ -113,6 +114,30 @@ export function replaceGroup(state: IGroupState, group: IGroup, replaceIndex?: n
   };
 }
 
+export function canMoveGroup(state: IGroupState, to: number, from?: number) {
+  if (from === undefined) from = state.selectedIndex;
+  if (from < 0) return false;
+  if (from === to) return false;
+  if (from < 0 && from >= state.groups.length) return false;
+  if (to < 0 && to >= state.groups.length) return false;
+  return true;
+}
+
+export function moveGroup(state: IGroupState, toIndex: number, fromIndex?: number) {
+  if (fromIndex === undefined) fromIndex = state.selectedIndex;
+  if (!canMoveGroup(state, toIndex, fromIndex)) return state;
+
+  const newGroups = [...state.groups];
+  const [group] = newGroups.splice(fromIndex, 1);
+  newGroups.splice(toIndex, 0, group);
+
+  return {
+    ...state,
+    groups: newGroups,
+    selectedIndex: fromIndex === state.selectedIndex ? toIndex : state.selectedIndex,
+  };
+}
+
 export function replaceGroups(state: IGroupState, groups: ReadonlyArray<IGroup>, selectIndex = -1) {
   return {
     ...state,
@@ -169,6 +194,7 @@ function groupsReducer(state: IGroupState, action: IGroupAction) {
     case "ADD_GROUP": return addGroup(state, action.group);
     case "DELETE_GROUP": return deleteGroup(state, action.deleteIndex);
     case "REPLACE_GROUP": return replaceGroup(state, action.group, action.replaceIndex);
+    case "MOVE_GROUP": return moveGroup(state, action.toIndex, action.fromIndex);
     case "REPLACE_GROUPS": return replaceGroups(state, action.groups, action.selectIndex);
     case "SELECT_GROUP": return selectGroup(state, action.selectIndex);
     case "HOVER_GROUP": return setHoverGroup(state, action.hoverIndex);
