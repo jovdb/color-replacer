@@ -32,7 +32,7 @@ function Colors({
         const sourceColor = await showColorPickerAsync(group.sourceColor || "#ffffff");
         const newGroup = {...group, sourceColor};
         dispatchToGroups({
-          type: "ADD_GROUP",
+          type: "REPLACE_GROUP",
           group: newGroup,
         });
         if (onSourceClick) onSourceClick(index);
