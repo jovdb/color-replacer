@@ -158,7 +158,7 @@ function GroupConfig({
           <MenuItem value={"clip"} >Clip</MenuItem>)}
           <MenuItem value={"linear"} >Linear</MenuItem>)}
         </Select></td>
-        <td><Typography variant="body1" component="span" style={{marginLeft: "1em"}}><Link href="https://stackblitz.com/edit/typescript-anneor" target="info">Sample...</Link></Typography></td>
+        <td><Typography variant="body1" component="span" style={{marginLeft: "1em", whiteSpace: "nowrap"}}><Link href="https://stackblitz.com/edit/typescript-anneor" target="info">Test mixing curves...</Link></Typography></td>
         </tr>
         <tr>
           <td><Typography variant="body1" component="span" style={{marginRight: "1em"}}>Luminance mixing: </Typography></td>

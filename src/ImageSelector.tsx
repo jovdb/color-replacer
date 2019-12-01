@@ -29,7 +29,7 @@ export const ImageSelector = pipe(
 
   function ImageSelector() {
 
-    const imageIndex = 0;
+    const imageIndex = -1;
     const [selectedImageIndex, setSelectedImageIndex] = useState(imageIndex, "selectedImageIndex");
     const [, dispatchToImage] = useImageContext();
     const [, dispatchToGroups] = useGroupsContext();
@@ -63,7 +63,7 @@ export const ImageSelector = pipe(
         groups: [],
       });
       loadImage(name, url);
-    }, [dispatchToGroups, loadImage]);
+    }, [dispatchToGroups, loadImage, imageIndex]);
 
     const handleFileSelect = useCallback(async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
       const file = (e as any).currentTarget.files[0] as File;
