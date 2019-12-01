@@ -1,22 +1,11 @@
 import React from "react";
-import { colorspaces } from "./colorspaces";
+import * as colorspaces from "./colorspaces";
 import { onlyColorValue } from "./effects/onlyColorValue";
 import { onlyHue, onlyLuminance, onlySaturation } from "./effects/onlyHslValue";
 import { useRef, withDebug, useLayoutEffect, useCallback, useEffect } from "./hooks/hooks";
 import { pipe } from "./pipe";
 import { useRenderContext } from "./state/render";
 import { useSpring, animated } from "react-spring";
-
-function getImageData(imageEl: HTMLImageElement, canvasEl?: HTMLCanvasElement ): ImageData {
-  const canvas = canvasEl ? canvasEl : document.createElement("canvas");
-  canvas.width = imageEl.width;
-  canvas.height = imageEl.height;
-  const ctx = canvas.getContext("2d")!;
-  ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(imageEl, 0, 0);
-  console.log("ImageData loaded");
-  return ctx.getImageData(0, 0, canvas.width, canvas.height);
-}
 
 function filerGroup(imageData: ImageData, i: number, group: IGroup) {
 
@@ -182,15 +171,6 @@ const applyEffect = (imageData: ImageData, effectName: string | undefined, group
 
     case "test": {
 
-      function getParts(h: number) {
-        const f = (offset = 0) => Math.min(1, Math.max(0, (Math.abs(3 - (h + 360 - offset) % 360 / 60) - 1)));
-        return {
-          r: f(0),
-          g: f(120),
-          b: f(240),
-        };
-      }
-
       const targetColor1 = colorspaces.hexToRgb("#FFFF00"); // Red -> Yellow
       const targetColor2 = colorspaces.hexToRgb("#FF0000"); // Green -> Red
       const targetColor3 = colorspaces.hexToRgb("#008800"); // Blue -> Dark green
@@ -302,9 +282,8 @@ function Renderer(options: {
   groups?: ReadonlyArray<Readonly<IGroup>>;
   selectedGroup?: IGroup;
   onClick?(color: string): void;
-  onHover?(color: string): void;
 }) {
-  const {image = null, effectName, onClick, onHover, groups, selectedGroup} = options;
+  const {image = null, effectName, onClick, groups, selectedGroup} = options;
 
   const canvasRef = useRef<HTMLCanvasElement>(null, "Renderer.canvasRef");
   const ctxRef = useRef<CanvasRenderingContext2D>(null, "Renderer.ctxRef");

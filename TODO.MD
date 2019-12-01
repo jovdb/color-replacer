@@ -1,3 +1,4 @@
+- Use Web Assembly for processing ImageData
 - better scrolling with mousewheel: only opdate scroll position of other renderer
 - when zooming, keep center centered (update scroll position?)
 - 

@@ -2,9 +2,9 @@ import { Typography } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import MenuItem from "@material-ui/core/MenuItem";
 import Select from "@material-ui/core/Select";
-import { makeStyles, Theme, withStyles  } from "@material-ui/core/styles";
+import { makeStyles, Theme  } from "@material-ui/core/styles";
 import React from "react";
-import { useState, withDebug, useCallback, useEffect } from "./hooks/hooks";
+import { useState, withDebug, useCallback } from "./hooks/hooks";
 import { images } from "./images";
 import { fileToBase64 } from "./utils";
 import { pipe } from "./pipe";
@@ -27,13 +27,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 export const ImageSelector = pipe(
 
-  function ImageSelector({
-    imageEl,
-  }: {
-
-    /** Load images in this element (Optional) */
-    imageEl?: HTMLImageElement;
-  }) {
+  function ImageSelector() {
 
     const imageIndex = 0;
     const [selectedImageIndex, setSelectedImageIndex] = useState(imageIndex, "selectedImageIndex");

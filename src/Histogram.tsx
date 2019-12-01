@@ -1,6 +1,6 @@
 import Card from "@material-ui/core/Card";
 import React, { useEffect } from "react";
-import { colorspaces } from "./colorspaces";
+import * as colorspaces from "./colorspaces";
 import "./Histogram.css";
 import { IHistogram, ISample } from "./HistogramData";
 import { useRef, withDebug } from "./hooks/hooks";

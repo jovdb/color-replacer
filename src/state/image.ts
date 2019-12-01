@@ -1,7 +1,6 @@
 import { useContext, useReducer } from "../hooks/hooks";
 import React from "react";
-import { box, log } from "../logger";
-import { IHistogram } from "src/HistogramData";
+import { IHistogram } from "../HistogramData";
 
 declare global {
 
@@ -44,9 +43,6 @@ const initialState: IImageState = {
 
 export const ImageContext = React.createContext<IImageContext>({} as any);
 
-function getBox() {
-  return box("useImageState", "#22f", "#fff");
-}
 
 export function useImageState() {
   return (useReducer as any)(imageReducer, initialState) as [IImageState, React.Dispatch<IImageAction>];

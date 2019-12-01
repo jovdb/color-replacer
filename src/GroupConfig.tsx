@@ -3,7 +3,7 @@ import { Box, Button, Card, Select, Slider } from "@material-ui/core";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
 import React from "react";
 import { withDebug, useCallback } from "./hooks/hooks";
-import { useGroupsContext, getSelectedGroup, replaceGroup, deleteGroup } from "./state/groups";
+import { useGroupsContext, getSelectedGroup } from "./state/groups";
 import { pipe } from "./pipe";
 
 function GroupConfig({
@@ -89,7 +89,7 @@ function GroupConfig({
     });
   }, [group, dispatchToGroups]);
 
-  const onExportClicked = useCallback(function onExportClicked(e) {
+  const onExportClicked = useCallback(function onExportClicked() {
     if (onExport) onExport();
   }, [onExport]);
 

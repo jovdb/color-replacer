@@ -1,6 +1,6 @@
-import { colorspaces } from "src/colorspaces";
+import * as colorspaces from "../colorspaces";
 
-export function onlyHue(imageData: ImageData, ignoreBelowSaturation = 0) {
+export function onlyHue(imageData: ImageData, ignoreBelowSaturation: number = 0) {
   const data = imageData.data;
   const len = data.length;
   let hsl;

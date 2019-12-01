@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo, useReducer } from "react";
-import { useSpring } from "react-spring";
+import React, { useEffect } from "react";
 
 import { FormControl, Grid, InputLabel, MenuItem, Select, Typography, Button } from "@material-ui/core";
 import Colors from "./Colors";
-import { colorspaces, Hsl } from "./colorspaces";
+import * as colorspaces from "./colorspaces";
 import GroupConfig from "./GroupConfig";
 import Histogram from "./Histogram";
 import { useState, useCallback, withDebug } from "./hooks/hooks";
@@ -48,7 +47,7 @@ function App() {
 
   const [groupsState, dispatchToGroups] = useGroupsContext();
   const [renderState, dispatchToRenderer] = useRenderContext();
-  const [imageState, dispatchToImage] = useImageContext();
+  const [imageState] = useImageContext();
 
 /*
   useEffect(() => {

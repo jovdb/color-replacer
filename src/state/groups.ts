@@ -1,7 +1,5 @@
 import { useContext, useReducer } from "../hooks/hooks";
 import React from "react";
-import { box, log } from "../logger";
-import { exhaustiveFail } from "src/utils";
 
 interface IGroupReducerActions {
   "ADD_GROUP": { type: "ADD_GROUP", group: Readonly<IGroup> };
@@ -53,9 +51,6 @@ const initialState: IGroupState = {
 
 export const GroupsContext = React.createContext<IGroupsContext>({} as any);
 
-function getBox() {
-  return box("useGroupsState", "#22f", "#fff");
-}
 
 export function useGroupsState() {
   return useReducer(groupsReducer, initialState);
@@ -106,7 +101,7 @@ export function canReplaceGroup(state: IGroupState, replaceIndex?: number) {
 export function replaceGroup(state: IGroupState, group: IGroup, replaceIndex?: number) {
   if (replaceIndex === undefined) replaceIndex = state.selectedIndex;
   if (!canReplaceGroup(state, replaceIndex)) return state;
-  const newGroups = [... state.groups]; // clone
+  const newGroups = [...state.groups]; // clone
   newGroups[replaceIndex] = group;
   return {
     ...state,

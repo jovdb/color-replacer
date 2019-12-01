@@ -4,13 +4,6 @@ export function isLogMessage(obj: any): obj is ILogMessage {
   return Object.keys(obj).length === 2;
 }
 
-export function box(message: string, bgColor: string = colors.blue, forColor: string = colors.white) {
-  return {
-    message,
-    style: `color: ${forColor}; background-color: ${bgColor}; border-radius: 0.25em; padding: 0.1em 0.3em`,
-  };
-}
-
 export enum colors {
   red = "#db3236",
   green = "#3cba54",
@@ -21,6 +14,13 @@ export enum colors {
   lightGrey = "#BBBBBB",
   grey = "#888888",
   black = "#000000",
+}
+
+export function box(message: string, bgColor: string = colors.blue, forColor: string = colors.white) {
+  return {
+    message,
+    style: `color: ${forColor}; background-color: ${bgColor}; border-radius: 0.25em; padding: 0.1em 0.3em`,
+  };
 }
 
 function createMessage(...messages: Array<string | ILogMessage>) {

@@ -1,8 +1,6 @@
 import React, { DependencyList, Dispatch, EffectCallback, MutableRefObject, RefObject, SetStateAction, memo } from "react";
 import { box, log } from "../logger";
 
-const debug = true;
-
 function updateBox(title = "update") {
   return box(title, "#00a", "#fff");
 }
@@ -20,7 +18,7 @@ function toString(o: any) {
 export function useState<S>(initialState: S | (() => S), name: string): [S, Dispatch<SetStateAction<S>>];
 export function useState(defaultValue: any, name: string): any[] {
   const [value, setter] = React.useState(defaultValue);
-  if (!debug) return [value, setter];
+  const newSetter2 = React.useCallback(createFunction("set" + name[0].toUpperCase() + name.substr(1), newSetter), [value]);
 
   // Dynamically ncreate a named function
   function newSetter(newValue: any) {
@@ -46,8 +44,6 @@ export function useState(defaultValue: any, name: string): any[] {
     return placeholder[name];
   }
 
-  const newSetter2 = React.useCallback(
-    createFunction("set" + name[0].toUpperCase() + name.substr(1), newSetter), [value]);
   return [
     value,
     newSetter2,
@@ -79,6 +75,7 @@ function useDepsDiffs(deps: any[], onChange: (data: IBothDeps) => void) {
     prevDeps.current.deps = deps;
     prevDeps.current.isFirst = false;
 
+  // eslint-disable-next-line
   }, deps);
 }
 
@@ -114,11 +111,9 @@ function logDepsDiffs(hookName: string, cbName: string, bothDeps: IBothDeps) {
 export function useMemo<T>(factory: () => T, deps: DependencyList | undefined): T;
 export function useMemo<T>(factory: any, deps: any): T {
 
-  if (debug) {
-    useDepsDiffs(deps, (v) => {
-      logDepsDiffs("useMemo", factory.name || "anonymous", v);
-    });
-  }
+  useDepsDiffs(deps, (v) => {
+    logDepsDiffs("useMemo", factory.name || "anonymous", v);
+  });
 
   return React.useMemo(factory, deps);
 }
@@ -126,11 +121,9 @@ export function useMemo<T>(factory: any, deps: any): T {
 export function useCallback<T extends (...args: any[]) => any>(callback: T, deps: DependencyList): T;
 export function useCallback(cb: any, deps: any): any {
 
-  if (debug) {
-    useDepsDiffs(deps, (v) => {
-      logDepsDiffs("useCallback", cb.name || "anonymous", v);
-    });
-  }
+  useDepsDiffs(deps, (v) => {
+    logDepsDiffs("useCallback", cb.name || "anonymous", v);
+  });
 
   return React.useCallback(cb, deps);
 }
@@ -138,11 +131,9 @@ export function useCallback(cb: any, deps: any): any {
 export function useEffect(effect: EffectCallback, deps: DependencyList): void;
 export function useEffect(cb: EffectCallback, deps: any): void {
 
-  if (debug) {
-    useDepsDiffs(deps, (v) => {
-      logDepsDiffs("useEffect", cb.name || "anonymous", v);
-    });
-  }
+  useDepsDiffs(deps, (v) => {
+    logDepsDiffs("useEffect", cb.name || "anonymous", v);
+  });
 
   return React.useEffect(cb, deps);
 }
@@ -150,11 +141,9 @@ export function useEffect(cb: EffectCallback, deps: any): void {
 export function useLayoutEffect(effect: EffectCallback, deps: DependencyList): void;
 export function useLayoutEffect(cb: EffectCallback, deps: any): void {
 
-  if (debug) {
-    useDepsDiffs(deps, (v) => {
-      logDepsDiffs("useLayoutEffect", cb.name || "anonymous", v);
-    });
-  }
+  useDepsDiffs(deps, (v) => {
+    logDepsDiffs("useLayoutEffect", cb.name || "anonymous", v);
+  });
 
   return React.useLayoutEffect(cb, deps);
 }
@@ -162,9 +151,8 @@ export function useLayoutEffect(cb: EffectCallback, deps: any): void {
 export function useRef<T>(initialValue: T, name: string): MutableRefObject<T>;
 export function useRef<T>(initialValue: T | null, name: string): RefObject<T>;
 export function useRef(initialValue: any, name: string): any {
-  if (debug) {
-    React.useMemo(() => log(box("useRef", "#aaa", "#fff"), `${name}, created`), []); // Log once
-  }
+  // eslint-disable-next-line
+  React.useMemo(() => log(box("useRef", "#aaa", "#fff"), `${name}, created`), []); // Log once
 
   return React.useRef(initialValue);
 }
@@ -188,16 +176,15 @@ export function useReducer<R extends React.Reducer<any, any>>(
 export function useReducer(reducer: any, action: any): any {
 
   let wrappedReducer = reducer;
-  if (debug) {
-    const reducerName = reducer.name || "anonymous";
-    wrappedReducer = React.useCallback(function wrappedReducer(...args: any[]) {
-      const [, action] = args;
-      log(box("useReducer", "#00a", "#fff"), `action for ${reducerName}`, toString(action));
-      const newState = reducer(...args);
-      log(box("useReducer", "#00a", "#fff"), `new state:`, toString(newState));
-      return newState;
-    }, []);
-  }
+  const reducerName = reducer.name || "anonymous";
+  wrappedReducer = React.useCallback(function wrappedReducer(...args: any[]) {
+    const [, action] = args;
+    log(box("useReducer", "#00a", "#fff"), `action for ${reducerName}`, toString(action));
+    const newState = reducer(...args);
+    log(box("useReducer", "#00a", "#fff"), `new state:`, toString(newState));
+    return newState;
+  // eslint-disable-next-line
+  }, []);
 
   return React.useReducer(wrappedReducer, action);
 }
@@ -283,14 +270,12 @@ export function withDebug({
 
   let compBox: any;
 
-  return <T extends any>(comp: T) => memo(debug
-    ? (...args) => {
-      // Wrapped the component to log at re-render
-      compBox = box(componentName || comp.name, "#a00", "#fff");
-      log(compBox, "rerender");
-      return comp(...args);
-    }
-    : comp
+  return <T extends any>(comp: T) => memo((...args) => {
+    // Wrapped the component to log at re-render
+    compBox = box(componentName || comp.name, "#a00", "#fff");
+    log(compBox, "rerender");
+    return comp(...args);
+  }
   , (prevProps: any, nextProps: any) => {
 
     // A simple comparer that logs the properties changed
@@ -310,7 +295,7 @@ export function withDebug({
       }
     });
 
-    if (debug && !dontLog && isDiff) log(compBox, "props changed", JSON.stringify(changes));
+    if (!dontLog && isDiff) log(compBox, "props changed", JSON.stringify(changes));
     return noMemo
       ? false
       : !isDiff;

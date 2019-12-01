@@ -3,7 +3,7 @@ export function showColorPickerAsync(initialColor: string) {
   return new Promise<string | undefined>((resolve) => {
     const colorEl = document.createElement("input");
     colorEl.type = "color";
-    colorEl.value = initialColor ?? "";
+    colorEl.value = initialColor === undefined ? "" : initialColor;
     const onInput = () => {
       colorEl.removeEventListener("input", onInput);
       resolve(colorEl.value || undefined);

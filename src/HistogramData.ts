@@ -1,5 +1,4 @@
-import { cloneElement } from "react";
-import { colorspaces } from "./colorspaces";
+import * as colorspaces from "./colorspaces";
 
 export interface ISample {
   value: number;
@@ -35,7 +34,6 @@ export function createHueHistogram(imageData: ImageData): IHistogram {
     // if (hsl.s < 0.9) continue;
 
     const deg = Math.round(hsl.h * 360);
-    const lum = hsl.l;
 
     const sample = samples[deg];
     if (!sample) {

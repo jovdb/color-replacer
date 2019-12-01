@@ -5,10 +5,10 @@ import ArrowForward from "@material-ui/icons/ArrowForward";
 import ArrowBack from "@material-ui/icons/ArrowBack";
 import React from "react";
 import "./colors.css";
-import { useState, withDebug, useCallback } from "./hooks/hooks";
+import { withDebug, useCallback } from "./hooks/hooks";
 import { showColorPickerAsync } from "./showColorPicker";
-import { useGroupsContext, replaceGroup, selectGroup, setHoverGroup, addGroup, getSelectedGroup, canSetHoverGroup, useGroupsState } from "./state/groups";
-import { colorspaces } from "./colorspaces";
+import { useGroupsContext, getSelectedGroup, canSetHoverGroup } from "./state/groups";
+import * as colorspaces from "./colorspaces";
 import { pipe } from "./pipe";
 
 function Colors({
@@ -90,7 +90,7 @@ function Colors({
     }
   }, [groupsState, dispatchToGroups]);
 
-  const onMouseLeave = useCallback(function onMouseLeave(e: React.MouseEvent<HTMLElement>) {
+  const onMouseLeave = useCallback(function onMouseLeave() {
     const index = -1;
     if (canSetHoverGroup(groupsState, index)) {
       dispatchToGroups({
